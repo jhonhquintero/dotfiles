@@ -1,3 +1,7 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
+# Show Memory and Swap from fastfetch on one line
 
-fastfetch | ag Memory | sed 's/\x1B\[[0-9;]*[A-Za-z]//g'
+fastfetch \
+  | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' \
+  | grep -E 'Memory|Swap' \
+  | awk -F':' '{gsub(/^[ \t]+/, "", $2); printf "%s%s: %s", (NR>1?" | ":""), $1, $2} END{print ""}'

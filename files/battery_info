@@ -1,44 +1,24 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
-class BatteryInfo
+fastfetch \
+  | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' \
+  | grep -i 'battery' \
+  | awk -F':' '
+    {
+      name=$1
+      sub(/ \(.*$/, "", name)             # remove "(bq40z651)"
+      value=$2
+      sub(/^ +/, "", value)               # trim leading spaces
 
-  def self.show
-    new.show
-  end
+      # extract percentage
+      pct=value
+      sub(/%.*/, "%", pct)                # keep up to first %
 
-  def show
-    return 'this script is meant to run on macOS/OSX, sorry' unless mac?
-    return charge_status unless discharging?
+      # extract status in brackets
+      st=value
+      sub(/.*\[/, "[", st)                # cut before [
+      sub(/].*/, "]", st)                 # cut after ]
 
-    "done in: #{time_remaining}"
-  end
-
-  private
-
-  def status_string
-    @status_string ||= `pmset -g batt`
-  end
-
-  def mac?
-    !(/darwin/ =~ RUBY_PLATFORM).nil?
-  end
-
-  def time_remaining
-    parsed_status[2]
-  end
-
-  def charge_status
-    parsed_status[1]
-  end
-
-  def discharging?
-    charge_status == 'discharging'
-  end
-
-  def parsed_status
-    @parsed_status ||=
-      status_string.match(/(discharging|finishing charge|charged|attached|charging); (\d+:\d+|\(no estimate\))?/)
-  end
-end
-
-puts BatteryInfo.show
+      printf "%s %s %s\n", name, pct, st
+    }
+  '

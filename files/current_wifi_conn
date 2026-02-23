@@ -1,3 +1,12 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
-ipconfig getsummary en0 | awk -F ' SSID : '  '/ SSID : / {print $2}'
+fastfetch \
+  | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' \
+  | grep -i 'wifi' \
+  | awk -F':' '
+      NR==1 {
+        gsub(/^[ \t]+/, "", $2);  # trim leading spaces from value
+        gsub(/[ \t]+$/, "", $1);  # trim from key just in case
+        printf "%s: %s\n", $1, $2
+      }
+    '

@@ -23,12 +23,16 @@ then
 fi
 
 # simple http server
-alias server='python -m SimpleHTTPServer'
+alias server='python3 -m http.server'
 alias ll='ls -alG'
 alias vim='nvim'
 alias vi='nvim'
 alias sniff='curl -w "@$HOME/.sniff.txt" -o /dev/null -s '
 alias uuidgen='uuidgen | tr -d "\n" | tr "[:upper:]" "[:lower:]" | pbcopy'
+alias gpf='git push -f'
+alias gd='git diff'
+alias gst='git status'
+alias flac2mp3='for f in *.flac; do ffmpeg -i "$f" -q:a 0 -map 0:a -map 0:v -map_metadata 0 -id3v2_version 3 "${f%.flac}.mp3"; done'
 
 function git_local_cleanup()
 {
@@ -57,6 +61,7 @@ source ~/.prompt
 
 source ~/.private_vars
 
+
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 export KERL_BUILD_DOCS="true"
@@ -78,6 +83,3 @@ export PATH="$ASDF_DATA_DIR/shims:$PATH"
 
 
 . "$HOME/.cargo/env"
-
-# Added by Windsurf
-export PATH="/Users/jhon/.codeium/windsurf/bin:$PATH"

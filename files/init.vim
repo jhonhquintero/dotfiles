@@ -30,6 +30,10 @@ Plug 'github/copilot.vim'
 " vim-signature is a plugin to place, toggle and display marks.
 Plug 'kshenoy/vim-signature'
 
+" switch some text under the cursor based on regex patterns
+" gs to call Switch
+Plug 'AndrewRadev/switch.vim'
+
 "
 " ################## Language plugins
 " elixir (and a bunch of other langs)
@@ -118,6 +122,7 @@ set history=1000
 set autoread
 set undolevels=1000
 set termguicolors
+" set spell spelllang=en_us
 
 " nvim 0.8.0 activates the damn mouse by default :/
 set mouse=
@@ -198,6 +203,7 @@ nmap <silent> t<C-s> :TestSuite<CR>
 nmap <silent> t<C-l> :TestLast<CR>
 nmap <silent> t<C-g> :TestVisit<CR>
 let test#strategy = "neovim"
+tmap <C-o> <C-\><C-n>
 let test#elixir#exunit#options = {
   \ 'all':   '--trace'
 \}
@@ -303,7 +309,7 @@ nnoremap <silent> <leader>co  :<C-u>CocList outline<CR>
 nmap <leader>l :CocList snippets<CR>
 
 " json pretty print
-nmap <leader>j :%!python -m json.tool<CR>
+nmap <leader>j :%!python3 -m json.tool<CR>
 
 augroup vimrc_plugins_coc
   autocmd CursorHold * silent call CocActionAsync('highlight')
@@ -405,28 +411,24 @@ let g:loaded_perl_provider = 0
 lua << EOF
   require'colorizer'.setup()
 
-  require'nvim-treesitter.configs'.setup {
-    ensure_installed = {
-      "javascript",
-      "typescript",
-      "rust",
-      "elixir",
-      "erlang",
-      "c",
-      "lua",
-      "tsx",
-      "scss",
-      "ruby",
-      "vim",
-      "bash",
-    },
-    highlight = {
-      enable = true
-    },
-    -- playground = {
-    --   enable = true,
-    -- },
-  }
+  require('nvim-treesitter').install({
+    "javascript",
+    "typescript",
+    "rust",
+    "elixir",
+    "erlang",
+    "c",
+    "lua",
+    "tsx",
+    "scss",
+    "ruby",
+    "python",
+    "vim",
+    "bash",
+  })
+
+  -- init.lua
+  vim.g.python3_host_prog = vim.fn.systemlist("asdf which python")[1]
 
   vim.diagnostic.config { virtual_lines = true }
 EOF
