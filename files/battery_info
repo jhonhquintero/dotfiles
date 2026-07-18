@@ -1,24 +1,12 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
-fastfetch \
-  | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' \
-  | grep -i 'battery' \
-  | awk -F':' '
-    {
-      name=$1
-      sub(/ \(.*$/, "", name)             # remove "(bq40z651)"
-      value=$2
-      sub(/^ +/, "", value)               # trim leading spaces
-
-      # extract percentage
-      pct=value
-      sub(/%.*/, "%", pct)                # keep up to first %
-
-      # extract status in brackets
-      st=value
-      sub(/.*\[/, "[", st)                # cut before [
-      sub(/].*/, "]", st)                 # cut after ]
-
-      printf "%s %s %s\n", name, pct, st
-    }
-  '
+/opt/homebrew/bin/fastfetch \
+  --pipe \
+  --structure Battery \
+  --format json |
+/opt/homebrew/bin/jq -r '
+  .[]
+  | select(.type == "Battery")
+  | .result[0]
+  | "Battery \(.capacity | round)% [\(.status | join(", "))]"
+'

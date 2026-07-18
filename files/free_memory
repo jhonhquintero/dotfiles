@@ -1,7 +1,28 @@
 #!/opt/homebrew/bin/bash
-# Show Memory and Swap from fastfetch on one line
 
-fastfetch \
-  | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' \
-  | grep -E 'Memory|Swap' \
-  | awk -F':' '{gsub(/^[ \t]+/, "", $2); printf "%s%s: %s", (NR>1?" | ":""), $1, $2} END{print ""}'
+/opt/homebrew/bin/fastfetch \
+  --pipe \
+  --structure Memory:Swap \
+  --format json |
+/opt/homebrew/bin/jq -r '
+  def gib:
+    . / 1073741824;
+
+  def two_decimals:
+    ((. * 100) | round) / 100;
+
+  (.[] | select(.type == "Memory") | .result) as $mem |
+  (.[] | select(.type == "Swap") | .result[0]) as $swap |
+
+  "Memory: \(($mem.used | gib | two_decimals)) GiB / " +
+  "\(($mem.total | gib | two_decimals)) GiB " +
+  "(\(($mem.used * 100 / $mem.total) | round)%) | " +
+  (
+    if ($swap.total // 0) == 0 then
+      "Swap: Unused"
+    else
+      "Swap: \(($swap.used | gib | two_decimals)) GiB / " +
+      "\(($swap.total | gib | two_decimals)) GiB"
+    end
+  )
+'
